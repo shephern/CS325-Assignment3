@@ -39,14 +39,13 @@ prob += s
 
 ans = prob.solve()
 print ans
-LpWrite("TempOutput.lp")
 print "Status: ", pulp.LpStatus[prob.status]
 print "Values: "
 v = [pulp.value(x0),pulp.value(x1),pulp.value(x2),pulp.value(x3),pulp.value(x4),pulp.value(x5)]
 for i in range(0,6):
 	print "x",i, " = ", v[i]
 
-xplot = n.linspace(0, 22305)
+xplot = n.linspace(0, 366)
 yplot = v[0]+v[1]*xplot+v[2]*n.cos((2*n.pi*xplot)/b1)+v[3]*n.sin((2*n.pi*xplot)/b1)+v[4]*n.cos((2*n.pi*xplot)/b2)+v[5]*n.sin((2*n.pi*xplot)/b2)
 xdata = [point[1] for point in t]
 ydata = [point[0] for point in t]
@@ -58,7 +57,7 @@ plt.ylabel("average temperature (C)")
 plt.legend(loc='upper right')
 plt.axhline(color = 'gray', zorder=-1)
 plt.axvline(color = 'gray', zorder=-1)
-plt.axis([22026,22320,-30,40])
+
 # save plot to file
 plt.savefig("TemperatureFit.pdf")
 
