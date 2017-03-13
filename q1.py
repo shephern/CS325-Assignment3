@@ -6,9 +6,22 @@ a = pulp.LpVariable("a", 0, None)
 b = pulp.LpVariable("b", 0, None)
 
 #Define problem
-prob = pulp.LpProblem("bestFit", pulp.LpMinimization)
+prob = pulp.LpProblem("bestFit", pulp.LpMinimize)
 
 #Define instance
 t = [(1, 3), (2, 5), (3, 7), (5, 11), (7, 14), (8, 15), (10, 19)]
+
+#Add contraints
+for i in t:
+	prob += a*(i[0]) + b - s >= i[1]
+	prob += -(a*(i[0]) + b - s) <= i[1]
+
+#Add objective, just minimizing s
+prob += s
+
+ans = prob.solve()
+print ans
+print "Status: ", pulp.LpStatus[prob.status]
+print "Line of best fit: y = ", pulp.value(a),"x + ", pulp.value(b)
 
 
