@@ -1,28 +1,57 @@
 from pulp import *
+import math
 
-#Some example code I found online, however pulp doesn't seem to be on FLIP?
+def solve(f):
+    prob = LpProblem("best fit curve for temps in corvallis", LpMinimize)
 
-# declare your variables
-x1 = LpVariable("x1", 0, 40)   # 0<= x1 <= 40
-x2 = LpVariable("x2", 0, 1000) # 0<= x2 <= 1000
- 
-# defines the problem
-prob = LpProblem("problem", LpMaximize)
- 
-# defines the constraints
-prob += 2*x1+x2 <= 100 
-prob += x1+x2 <= 80
-prob += x1<=40
-prob += x1>=0
-prob += x2>=0
- 
-# defines the objective function to maximize
-prob += 3*x1+2*x2
- 
-# solve the problem
-status = prob.solve(GLPK(msg=0))
-LpStatus[status]
- 
-# print the results x1 = 20, x2 = 60
-value(x1)
-value(x2)
+    # LP variables
+    m = LpVariable("m", 0)
+    x0 = LpVariable("x0", 0)
+    x1 = LpVariable("x1", 0)
+    x2 = LpVariable("x2", 0)
+    x3 = LpVariable("x3", 0)
+    x4 = LpVariable("x4", 0)
+    x5 = LpVariable("x5", 0)
+
+    prob += m
+
+    for line in f:
+        values = parse(line)
+    # Contraints
+        prob += x0 + \
+           (x1 * values[0]) + \
+           (x2 * math.cos((2 * math.pi * values[0]) / 365.25)) + \
+           (x3 * math.sin((2 * math.pi * values[0]) / 365.25)) + \
+           (x4 * math.cos((2 * math.pi * values[0]) / (365.25 * 10.7))) + \
+           (x5 * math.sin((2 * math.pi * values[0]) / (365.25 * 10.7))) - values[1] <= m
+
+    # Contraints
+        prob += -x0 - \
+           (x1 * values[0]) - \
+           (x2 * math.cos((2 * math.pi * values[0]) / 365.25)) - \
+           (x3 * math.sin((2 * math.pi * values[0]) / 365.25)) - \
+           (x4 * math.cos((2 * math.pi * values[0]) / (365.25 * 10.7))) - \
+           (x5 * math.sin((2 * math.pi * values[0]) / (365.25 * 10.7))) + values[1] <= m
+
+    status = prob.solve()
+    print LpStatus[status]
+    # print value(prob.objective)
+
+    print value(x0)
+    print value(x1)
+    print value(x2)
+    print value(x3)
+    print value(x4)
+    print value(x5)
+
+def parse(line):
+    new_list = line.strip("\n")
+    new_list = line.split(";")
+    new_list = new_list[7:]
+    new_list.reverse()
+    new_list = map(float, new_list)
+    return new_list
+
+if __name__ == "__main__":
+    f = open("Corvallis_data.csv")
+    solve(f)
