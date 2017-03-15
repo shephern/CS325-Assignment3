@@ -29,19 +29,21 @@ b2 = 365.25 * 10.7
 for i in t:
 	d = i[1]
 	a = i[0]
-	top = 2*n.pi*d  #saving space
+	top = 2.0*n.pi*d  #saving space
 	prob += x0+x1*d + x2*n.cos(top/b1)+x3*n.sin(top/b1) + x4*n.cos(top/b2)+x5*n.sin(top/b2) -a-s <= 0
 	prob += -(x0+x1*d + x2*n.cos(top/b1)+x3*n.sin(top/b1) + x4*n.cos(top/b2)+x5*n.sin(top/b2) -a)-s <= 0
 
-
+prob += x4 > 2
+prob += x5 > 2
 #Add objective, just minimizing s
 prob += s
 
-ans = prob.solve()
+ans = prob.solve(pulp.GLPK())
 print ans
-LpWrite("TempOutput.lp")
+prob.writeLP("TempOutput.lp")
 print "Status: ", pulp.LpStatus[prob.status]
 print "Values: "
+print pulp.value(x4),pulp.value(x5)
 v = [pulp.value(x0),pulp.value(x1),pulp.value(x2),pulp.value(x3),pulp.value(x4),pulp.value(x5)]
 for i in range(0,6):
 	print "x",i, " = ", v[i]
